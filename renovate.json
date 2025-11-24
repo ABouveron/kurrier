@@ -3,22 +3,26 @@
   "extends": [
     "config:recommended"
   ],
-  "assignees": ["ABouveron"],
+  "assignees": [
+    "ABouveron"
+  ],
   "includePaths": [
     "db/docker-compose.yml"
   ],
   "packageRules": [
     {
-      "matchDatasources": ["docker"],
-      "matchPackagePatterns": [
-        "(?i)redis",
-        "(?i)postgres",
-        "(?i)mariadb",
-        "(?i)kong"
+      "matchDatasources": [
+        "docker"
       ],
       "major": {
         "enabled": false
-      }
+      },
+      "matchPackageNames": [
+        "/(?i)redis/",
+        "/(?i)postgres/",
+        "/(?i)mariadb/",
+        "/(?i)kong/"
+      ]
     }
   ]
 }
