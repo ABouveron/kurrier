@@ -1,0 +1,24 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "assignees": ["ABouveron"],
+  "includePaths": [
+    "db/docker-compose.yml"
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "matchPackagePatterns": [
+        "(?i)redis",
+        "(?i)postgres",
+        "(?i)mariadb",
+        "(?i)kong"
+      ],
+      "major": {
+        "enabled": false
+      }
+    }
+  ]
+}
