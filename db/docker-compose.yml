@@ -1,7 +1,7 @@
 name: kurrier
 services:
   web:
-    image: ghcr.io/kurrier-org/kurrier-web:v0.0.92
+    image: ghcr.io/kurrier-org/kurrier-web:v0.0.93@sha256:92212cea87f5f2dd5477dd66c6df81bf506a06375d699487fcc7301ebf3db8e6
     restart: unless-stopped
     ports:
       - "${WEB_PORT:-3000}:3000"
@@ -33,7 +33,7 @@ services:
       DAV_URL: http://dav:80
 
   worker:
-    image: ghcr.io/kurrier-org/kurrier-worker:v0.0.92
+    image: ghcr.io/kurrier-org/kurrier-worker:v0.0.93@sha256:a0555ffdefe8c4df887c47543fcc53b3ba4019d15b1d2925e56fb5fa754e9955
     restart: unless-stopped
     ports:
       - "${NITRO_PORT:-3001}:3001"
@@ -68,7 +68,7 @@ services:
       - ./dav_data:/dav-data
 
   redis:
-    image: redis:8.2.2
+    image: redis:8.2.2@sha256:4521b581dbddea6e7d81f8fe95ede93f5648aaa66a9dacd581611bf6fe7527bd
     command: [ "redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}" ]
     healthcheck:
       test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "PING" ]
@@ -81,7 +81,7 @@ services:
       - ${REDIS_PORT}:${REDIS_PORT}
 
   typesense:
-    image: typesense/typesense:29.0
+    image: typesense/typesense:29.0@sha256:316b7e71c21f7e5e5caa8daa150e1b3f2be8c876081ee1f77bc2d92cd7f137d0
     restart: on-failure
     ports:
       - ${TYPESENSE_PORT}:${TYPESENSE_PORT}
@@ -95,7 +95,7 @@ services:
       - TYPESENSE_API_KEY=${TYPESENSE_API_KEY}
 
   db-bootstrap:
-    image: postgres:15
+    image: postgres:15@sha256:24d6c206bba8c0440bceb24a8d4bf642f60bf7aea94887051ea5761d29c22323
     depends_on:
       - db
       - storage
@@ -114,7 +114,7 @@ services:
     restart: "no"
 
   dav:
-    image: ckulka/baikal:nginx
+    image: ckulka/baikal:nginx@sha256:4c8035b33f77bc8ae4cdb2dfa82203bb04e5fd93711e6b74a2eca348b845f81b
     restart: always
     ports:
       - "5232:80"
@@ -124,7 +124,7 @@ services:
 
   studio:
     container_name: supabase-studio
-    image: supabase/studio:2025.11.10-sha-5291fe3
+    image: supabase/studio:2025.11.10-sha-5291fe3@sha256:db1fb41e13ebd8666116486a9741bf1a1cb1cba36b4d0e44f45d95fca70576ac
     restart: unless-stopped
     healthcheck:
       test:
@@ -153,7 +153,7 @@ services:
 
   kong:
     container_name: supabase-kong
-    image: kong:2.8.1
+    image: kong:2.8.1@sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d
     restart: unless-stopped
     ports:
       - ${KONG_HTTP_PORT}:8000/tcp
@@ -175,7 +175,7 @@ services:
 
   auth:
     container_name: supabase-auth
-    image: supabase/gotrue:v2.182.1
+    image: supabase/gotrue:v2.182.1@sha256:28fa2e45b9818b1b1b116f1020c1c447ec0b09c61a02039e023bf54f759e2725
     restart: unless-stopped
     healthcheck:
       test:
@@ -218,7 +218,7 @@ services:
 
   rest:
     container_name: supabase-rest
-    image: postgrest/postgrest:v13.0.7
+    image: postgrest/postgrest:v13.0.7@sha256:0a46780309a604cdc8b56c776c6e5e15788ce58174d709e40459ab5a2d44d228
     restart: unless-stopped
     depends_on:
       db:
@@ -238,7 +238,7 @@ services:
 
   storage:
     container_name: supabase-storage
-    image: supabase/storage-api:v1.29.0
+    image: supabase/storage-api:v1.29.0@sha256:78b4d94db413209c445e027cfcccd3ec007fc1d71ae94c4a752f57ec4b773a9a
     restart: unless-stopped
     volumes:
       - ./volumes/storage:/var/lib/storage:z
@@ -271,7 +271,7 @@ services:
 
   meta:
     container_name: supabase-meta
-    image: supabase/postgres-meta:v0.93.1
+    image: supabase/postgres-meta:v0.93.1@sha256:3b92a6c4e58ce841c79f65201ae3487af84e774e34ecac989684f775eb78f879
     restart: unless-stopped
     depends_on:
       db:
@@ -287,7 +287,7 @@ services:
 
   db:
     container_name: supabase-db
-    image: supabase/postgres:15.8.1.085
+    image: supabase/postgres:15.8.1.085@sha256:af083ef64d0408c8f098ee6f5c364a59b26f36fbc0f3a334a62c5c1d57362e9b
     restart: unless-stopped
     volumes:
       - ./volumes/db/realtime.sql:/docker-entrypoint-initdb.d/migrations/99-realtime.sql:Z
@@ -321,7 +321,7 @@ services:
 
   supavisor:
     container_name: supabase-pooler
-    image: supabase/supavisor:2.7.4
+    image: supabase/supavisor:2.7.4@sha256:466297ba00956e2d1cbd56a4362fbd5dbc9c2a47ad83e8ca9bdb877f743315ee
     restart: unless-stopped
     ports:
       - ${POSTGRES_PORT}:5432
