@@ -23,6 +23,15 @@
         "/(?i)mariadb/",
         "/(?i)kong/"
       ]
+    },
+    {
+      "matchPackageNames": ["supabase/postgres"],
+      "major": {
+        "enabled": false
+      },
+      "minor": {
+        "enabled": false
+      }
     }
   ]
 }
