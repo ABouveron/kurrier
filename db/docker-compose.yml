@@ -64,8 +64,8 @@ services:
       LOCAL_TUNNEL_URL: ${LOCAL_TUNNEL_URL}
       DAV_URL: http://dav:80
     volumes:
-      - ./dav_config:/dav-config
-      - ./dav_data:/dav-data
+      - ${INSTALL_DIRECTORY}/dav_config:/dav-config
+      - ${INSTALL_DIRECTORY}/dav_data:/dav-data
 
   redis:
     image: redis:8.2.2@sha256:4521b581dbddea6e7d81f8fe95ede93f5648aaa66a9dacd581611bf6fe7527bd
@@ -76,7 +76,7 @@ services:
       timeout: 1s
       retries: 30
     volumes:
-      - ./redis_data:/data
+      - ${INSTALL_DIRECTORY}/redis_data:/data
     ports:
       - ${REDIS_PORT}:${REDIS_PORT}
 
@@ -86,7 +86,7 @@ services:
     ports:
       - ${TYPESENSE_PORT}:${TYPESENSE_PORT}
     volumes:
-      - ./typesense-data:/data
+      - ${INSTALL_DIRECTORY}/typesense-data:/data
     command: >
       --data-dir /data
       --api-key=${TYPESENSE_API_KEY}
@@ -109,7 +109,7 @@ services:
       PGDATABASE: postgres
       RLS_CLIENT_PASSWORD: ${RLS_CLIENT_PASSWORD}
     volumes:
-      - ./init:/scripts
+      - ${INSTALL_DIRECTORY}/init:/scripts
     entrypoint: [ "/bin/bash", "/scripts/db-bootstrap.sh" ]
     restart: "no"
 
@@ -119,8 +119,8 @@ services:
     ports:
       - "5232:80"
     volumes:
-      - ./dav_config:/var/www/baikal/config
-      - ./dav_data:/var/www/baikal/Specific
+      - ${INSTALL_DIRECTORY}/dav_config:/var/www/baikal/config
+      - ${INSTALL_DIRECTORY}/dav_data:/var/www/baikal/Specific
 
   studio:
     container_name: supabase-studio
@@ -159,7 +159,7 @@ services:
       - ${KONG_HTTP_PORT}:8000/tcp
       - ${KONG_HTTPS_PORT}:8443/tcp
     volumes:
-      - ./volumes/api/kong.yml:/home/kong/temp.yml:ro,z
+      - ${INSTALL_DIRECTORY}/volumes/api/kong.yml:/home/kong/temp.yml:ro,z
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /home/kong/kong.yml
@@ -241,7 +241,7 @@ services:
     image: supabase/storage-api:v1.29.0@sha256:78b4d94db413209c445e027cfcccd3ec007fc1d71ae94c4a752f57ec4b773a9a
     restart: unless-stopped
     volumes:
-      - ./volumes/storage:/var/lib/storage:z
+      - ${INSTALL_DIRECTORY}/volumes/storage:/var/lib/storage:z
     healthcheck:
       test:
         ["CMD","wget","--no-verbose","--tries=1","--spider","http://storage:5000/status"]
@@ -290,14 +290,14 @@ services:
     image: supabase/postgres:15.8.1.085@sha256:af083ef64d0408c8f098ee6f5c364a59b26f36fbc0f3a334a62c5c1d57362e9b
     restart: unless-stopped
     volumes:
-      - ./volumes/db/realtime.sql:/docker-entrypoint-initdb.d/migrations/99-realtime.sql:Z
-      - ./volumes/db/webhooks.sql:/docker-entrypoint-initdb.d/init-scripts/98-webhooks.sql:Z
-      - ./volumes/db/roles.sql:/docker-entrypoint-initdb.d/init-scripts/99-roles.sql:Z
-      - ./volumes/db/jwt.sql:/docker-entrypoint-initdb.d/init-scripts/99-jwt.sql:Z
-      - ./volumes/db/data:/var/lib/postgresql/data:Z
-      - ./volumes/db/_supabase.sql:/docker-entrypoint-initdb.d/migrations/97-_supabase.sql:Z
-      - ./volumes/db/logs.sql:/docker-entrypoint-initdb.d/migrations/99-logs.sql:Z
-      - ./volumes/db/pooler.sql:/docker-entrypoint-initdb.d/migrations/99-pooler.sql:Z
+      - ${INSTALL_DIRECTORY}/volumes/db/realtime.sql:/docker-entrypoint-initdb.d/migrations/99-realtime.sql:Z
+      - ${INSTALL_DIRECTORY}/volumes/db/webhooks.sql:/docker-entrypoint-initdb.d/init-scripts/98-webhooks.sql:Z
+      - ${INSTALL_DIRECTORY}/volumes/db/roles.sql:/docker-entrypoint-initdb.d/init-scripts/99-roles.sql:Z
+      - ${INSTALL_DIRECTORY}/volumes/db/jwt.sql:/docker-entrypoint-initdb.d/init-scripts/99-jwt.sql:Z
+      - ${INSTALL_DIRECTORY}/volumes/db/data:/var/lib/postgresql/data:Z
+      - ${INSTALL_DIRECTORY}/volumes/db/_supabase.sql:/docker-entrypoint-initdb.d/migrations/97-_supabase.sql:Z
+      - ${INSTALL_DIRECTORY}/volumes/db/logs.sql:/docker-entrypoint-initdb.d/migrations/99-logs.sql:Z
+      - ${INSTALL_DIRECTORY}/volumes/db/pooler.sql:/docker-entrypoint-initdb.d/migrations/99-pooler.sql:Z
       - db-config:/etc/postgresql-custom
     healthcheck:
       test:
@@ -327,7 +327,7 @@ services:
       - ${POSTGRES_PORT}:5432
       - ${POOLER_PROXY_PORT_TRANSACTION}:6543
     volumes:
-      - ./volumes/pooler/pooler.exs:/etc/pooler/pooler.exs:ro,z
+      - ${INSTALL_DIRECTORY}/volumes/pooler/pooler.exs:/etc/pooler/pooler.exs:ro,z
     healthcheck:
       test:
         ["CMD","curl","-sSfL","--head","-o","/dev/null","http://127.0.0.1:4000/api/health"]
