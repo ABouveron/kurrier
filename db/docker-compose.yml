@@ -33,7 +33,7 @@ services:
       DAV_URL: http://dav:80
 
   worker:
-    image: ghcr.io/kurrier-org/kurrier-worker:v0.0.93@sha256:a0555ffdefe8c4df887c47543fcc53b3ba4019d15b1d2925e56fb5fa754e9955
+    image: ghcr.io/kurrier-org/kurrier-worker:v0.0.94@sha256:2d0db59809a2da705173ddb8094b50781f07e3e494e34e1d6a47d79b7fd024e2
     restart: unless-stopped
     ports:
       - "${NITRO_PORT:-3001}:3001"
