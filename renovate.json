@@ -3,7 +3,9 @@
   "extends": [
     "config:recommended"
   ],
-  "baseBranches": ["prod"],
+  "baseBranchPatterns": [
+    "prod"
+  ],
   "assignees": [
     "ABouveron"
   ],
@@ -26,7 +28,9 @@
       ]
     },
     {
-      "matchPackageNames": ["supabase/postgres"],
+      "matchPackageNames": [
+        "supabase/postgres"
+      ],
       "major": {
         "enabled": false
       },
@@ -35,7 +39,9 @@
       }
     },
     {
-      "matchPackageNames": ["supabase/studio"],
+      "matchPackageNames": [
+        "supabase/studio"
+      ],
       "versioning": "regex:^(?<major>\\d{4})\\.(?<minor>\\d{2})\\.(?<patch>\\d{2}).*$"
     }
   ]
