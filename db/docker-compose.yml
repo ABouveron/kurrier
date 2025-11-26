@@ -124,7 +124,7 @@ services:
 
   studio:
     container_name: supabase-studio
-    image: supabase/studio:2025.11.24-sha-d990ae8@sha256:c23e09e813dac95de6f9249190f32f4a6e1789839cd8659e98d1305f001e6e30
+    image: supabase/studio:2025.11.26-sha-8f096b5@sha256:a33aef613396aa268f9fca1dc2c1947b1e5937bb314515dbb79f2a33775c9291
     restart: unless-stopped
     healthcheck:
       test:
