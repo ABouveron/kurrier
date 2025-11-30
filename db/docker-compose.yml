@@ -114,7 +114,7 @@ services:
     restart: "no"
 
   dav:
-    image: ckulka/baikal:nginx@sha256:4c8035b33f77bc8ae4cdb2dfa82203bb04e5fd93711e6b74a2eca348b845f81b
+    image: ckulka/baikal:nginx@sha256:1a901125d121a3e414cda87c617bd322c57ae86b9d2aedbff7b3a7ac84bb23aa
     restart: always
     ports:
       - "5232:80"
