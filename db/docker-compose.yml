@@ -1,7 +1,7 @@
 name: kurrier
 services:
   web:
-    image: ghcr.io/kurrier-org/kurrier-web:v0.0.96@sha256:1948586d6c4ce8f47c67323dffa54873ea6895925ec9f428a81b8d08eca1d26b
+    image: ghcr.io/kurrier-org/kurrier-web:v0.0.101@sha256:d7532096a886cd247910641cdd0da0be905513f6674784ae585a94d4a3dd9f85
     restart: unless-stopped
     ports:
       - "${WEB_PORT:-3000}:3000"
