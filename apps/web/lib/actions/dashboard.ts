@@ -20,6 +20,7 @@ import {
 } from "@db";
 import {
 	apiScopeList,
+	defaultImapQuota,
 	DomainIdentityFormSchema,
 	FormState,
 	getPublicEnv,
@@ -489,6 +490,9 @@ export async function addNewEmailIdentity(
 
 		if (data.smtpAccountId) {
 			const identityData = IdentityInsertSchema.parse(data);
+			identityData.metaData = {
+				dailyQuota: Number(data.dailyQuota) || defaultImapQuota,
+			};
 			const [identity] = await rls((tx) =>
 				tx
 					.insert(identities)

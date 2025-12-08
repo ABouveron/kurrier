@@ -23,13 +23,19 @@ export const initSmtpClient = async (
 	identityId: string,
 	imapInstances: Map<string, ImapFlow>,
 ) => {
-	if (
-		imapInstances.has(identityId) &&
-		imapInstances.get(identityId)?.authenticated &&
-		imapInstances.get(identityId)?.usable
-	) {
-		return imapInstances.get(identityId)!;
-	} else {
+	// If we already have a working connection, reuse it
+	try {
+		const existing = imapInstances.get(identityId);
+		if (existing && existing.authenticated && existing.usable) {
+			return existing;
+		}
+	} catch (err) {
+		console.error(`[IMAP:${identityId}] Existing instance check failed`, err);
+		safeReconnect(identityId, imapInstances);
+		return;
+	}
+
+	try {
 		const [identity] = await db
 			.select()
 			.from(identities)
@@ -46,9 +52,11 @@ export const initSmtpClient = async (
 			ownerId: identity.ownerId,
 			parentId: String(identity.smtpAccountId),
 		});
+
 		const credentials = secrets?.vault?.decrypted_secret
 			? JSON.parse(secrets.vault.decrypted_secret)
 			: {};
+
 		const client = new ImapFlow({
 			host: credentials.IMAP_HOST,
 			port: credentials.IMAP_PORT,
@@ -58,18 +66,35 @@ export const initSmtpClient = async (
 				user: credentials.IMAP_USERNAME,
 				pass: credentials.IMAP_PASSWORD,
 			},
+			logger: {
+				error(data: any) {
+					console.error(`[IMAP:${identityId}]`, data.msg ?? data);
+				},
+				warn() {},
+				info() {},
+				debug() {},
+			},
+			logRaw: false,
 		});
-		await client.connect();
-		imapInstances.set(identity.id, client);
+
+		try {
+			await client.connect();
+		} catch (err) {
+			console.error(`[IMAP:${identityId}] connect() failed:`, err);
+			safeReconnect(identityId, imapInstances);
+			return;
+		}
+
+		imapInstances.set(identityId, client);
 
 		const noopInterval = setInterval(
 			async () => {
-				if (client.usable) {
-					try {
+				try {
+					if (client.usable) {
 						await client.noop();
-					} catch (err) {
-						console.error(`[IMAP:${identityId}] NOOP failed:`, err);
 					}
+				} catch (err) {
+					console.error(`[IMAP:${identityId}] NOOP failed:`, err);
 				}
 			},
 			5 * 60 * 1000,
@@ -77,7 +102,8 @@ export const initSmtpClient = async (
 
 		const cleanup = (reason: string) => {
 			clearInterval(noopInterval);
-			imapInstances.delete(identity.id);
+			imapInstances.delete(identityId);
+
 			console.warn(
 				`[IMAP:${identityId}] Disconnected (${reason}), reconnecting...`,
 			);
@@ -91,5 +117,9 @@ export const initSmtpClient = async (
 		});
 
 		return client;
+	} catch (err) {
+		console.error(`[IMAP:${identityId}] init failed`, err);
+		safeReconnect(identityId, imapInstances);
+		return;
 	}
 };

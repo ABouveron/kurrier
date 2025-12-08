@@ -37,6 +37,9 @@ const migrationWorkerEvents = new QueueEvents(
 	redisConnection,
 );
 
+const davWorkerQueue = new Queue("dav-worker", redisConnection);
+const davWorkerEvents = new QueueEvents("dav-worker", redisConnection);
+
 export async function getRedis() {
 	await Promise.all([
 		smtpEvents.waitUntilReady(),
@@ -44,6 +47,7 @@ export async function getRedis() {
 		searchIngestEvents.waitUntilReady(),
 		commonWorkerEvents.waitUntilReady(),
 		migrationWorkerEvents.waitUntilReady(),
+		davWorkerEvents.waitUntilReady(),
 	]);
 	return {
 		connection: redis,
@@ -57,5 +61,7 @@ export async function getRedis() {
 		commonWorkerEvents,
 		migrationWorkerQueue,
 		migrationWorkerEvents,
+		davWorkerQueue,
+		davWorkerEvents,
 	};
 }

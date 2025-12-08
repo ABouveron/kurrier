@@ -6,6 +6,7 @@ import {
 import { ReusableForm } from "@/components/common/reusable-form";
 import React from "react";
 import { parseSecret } from "@/lib/utils";
+import { imapQuotaList } from "@schema";
 
 function AddEmailIdentityForm({
 	onCompleted,
@@ -59,6 +60,34 @@ function AddEmailIdentityForm({
 					defaultValue: parsedVaultValues.SMTP_USERNAME || "",
 				},
 			},
+            {
+                name: "displayName",
+                label: "Display Name",
+                required: true,
+                wrapperClasses: "col-span-12",
+                bottomStartPrefix: <span className={"text-xs"}>This name will appear as the organizer when you create calendar events or send invitations.</span>,
+                props: {
+                    autoComplete: "off",
+                    required: true
+                },
+            },
+			{
+				name: "dailyQuota",
+				label: "Daily IMAP quota (Used for backfilling older mails)",
+				labelSuffix: "(Default: 500 MB per day)",
+				kind: "select" as const,
+				defaultValue: "500",
+				options: imapQuotaList.map((quota) => {
+					return {
+						label: quota.label,
+						value: String(quota.value),
+					};
+				}),
+				wrapperClasses: "col-span-12",
+				props: {
+					className: "w-full",
+				},
+			},
 			{
 				name: "smtpAccountId",
 				wrapperClasses: "hidden",
@@ -101,6 +130,17 @@ function AddEmailIdentityForm({
 					},
 				},
 			},
+            {
+                name: "displayName",
+                label: "Display Name",
+                required: true,
+                wrapperClasses: "col-span-12",
+                bottomStartPrefix: <span className={"text-xs"}>This name will appear as the organizer when you create calendar events or send invitations.</span>,
+                props: {
+                    autoComplete: "off",
+                    required: true
+                },
+            },
 			{
 				name: "local",
 				label: "Local part",
@@ -119,7 +159,6 @@ function AddEmailIdentityForm({
 				),
 			},
 
-			// hidden computed email value
 			{
 				name: "value",
 				wrapperClasses: "hidden",

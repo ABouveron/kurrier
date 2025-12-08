@@ -5,8 +5,16 @@ import { updatePassword } from "../../lib/dav/dav-update-password";
 import { createContact } from "../../lib/dav/dav-create-contact";
 import { updateContact } from "../../lib/dav/dav-update-contact";
 import { deleteContact } from "../../lib/dav/dav-delete-contact";
-import { seedAccount } from "../../lib/dav/dav-seed-account";
+import { createAccount } from "../../lib/dav/dav-create-account";
 import { davSyncDb } from "../../lib/dav/sync/dav-sync-db";
+import { createCalendarEvent } from "../../lib/dav/calendar/dav-create-calendar-event";
+import { deleteCalendarEvent } from "../../lib/dav/calendar/dav-delete-calendar-event";
+import { updateCalendarEvent } from "../../lib/dav/calendar/dav-update-calendar-event";
+import { davSyncCalendarsDb } from "../../lib/dav/calendar/dav-sync-calendar-db";
+import { davItipProcessor } from "../../lib/dav/calendar/dav-itip-processor";
+import { davItipNotify } from "../../lib/dav/calendar/dav-itip-notify";
+import { davItipReply } from "../../lib/dav/calendar/dav-itip-reply";
+
 export default defineNitroPlugin(async (nitroApp) => {
 	const { connection } = await getRedis();
 
@@ -21,14 +29,52 @@ export default defineNitroPlugin(async (nitroApp) => {
 				job.id,
 			);
 			switch (job.name) {
-				case "dav:seed-account":
-					return seedAccount(job.data.userId);
+				case "dav:create-account":
+					return createAccount(job.data.userId);
 				case "dav:update-password":
 					return updatePassword(job.data.userId);
+				case "dav:calendar:create-event":
+					return createCalendarEvent(job.data.eventId, job.data.notifyAttendees);
+				case "dav:calendar:update-event":
+					return updateCalendarEvent(job.data.eventId, job.data.notifyAttendees);
+				case "dav:calendar:delete-event":
+					return deleteCalendarEvent(job.data.eventId, job.data.notifyAttendees, job.data.deleteEvent);
+                case "dav:calendar:itip-notify":
+                    return davItipNotify({ eventId: job.data.eventId, action: job.data.action});
+                case "dav:calendar:itip-reply":
+                    return davItipReply({ eventId: job.data.eventId, attendeeId: job.data.attendeeId, partstat: job.data.partstat});
+                case "dav:calendar:itip-ingest-batch":
+                    return davItipProcessor(job.data.items);
 				case "dav:create-contact":
 					return createContact(job.data.contactId, job.data.ownerId);
 				case "dav:update-contact":
 					return updateContact(job.data.contactId, job.data.ownerId);
+				case "dav:create-contacts-batch": {
+					const { ownerId, contactIds } = job.data;
+
+					console.log(
+						`[DAV WORKER] Processing contacts batch (${contactIds.length})`,
+					);
+					const results = [];
+					for (const id of contactIds) {
+						try {
+							const r = await createContact(id, ownerId);
+							results.push({ id, success: true, result: r });
+						} catch (err: any) {
+							results.push({
+								id,
+								success: false,
+								error: err?.message ?? err,
+							});
+						}
+					}
+
+					return {
+						ok: true,
+						total: contactIds.length,
+						results,
+					};
+				}
 				case "dav:delete-contact":
 					return deleteContact({
 						contactId: job.data.contactId,
@@ -36,12 +82,15 @@ export default defineNitroPlugin(async (nitroApp) => {
 					});
 				case "dav:sync":
 					console.log("[DAV WORKER] Starting DAV sync job:", job.id);
-					return davSyncDb();
+                    await davItipProcessor(job.data.items || []);
+                    await davSyncDb();
+                    await davSyncCalendarsDb()
+                    return
 				default:
 					return { success: true, skipped: true };
 			}
 		},
-		{ connection },
+		{ connection, concurrency: 1 },
 	);
 
 	worker.on("completed", (job) => {
@@ -55,7 +104,7 @@ export default defineNitroPlugin(async (nitroApp) => {
 	const scheduler = new JobScheduler("dav-worker", { connection });
 	await scheduler.upsertJobScheduler(
 		"dav-sync-scheduler",
-		{ every: 60000 },
+		{ every: 120000 },
 		"dav:sync",
 		{},
 		{

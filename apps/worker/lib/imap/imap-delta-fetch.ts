@@ -4,7 +4,6 @@ import {
 	mailboxes,
 	mailboxSync,
 	messages,
-	threads,
 	mailboxThreads,
 } from "@db";
 import { and, desc, eq, sql } from "drizzle-orm";
@@ -57,8 +56,8 @@ export const deltaFetch = async (
 			);
 
 		if (!syncRow) continue;
-		if (syncRow.phase !== "IDLE" || Number(syncRow.backfillCursorUid || 0) > 0)
-			continue;
+		// if (syncRow.phase !== "IDLE" || Number(syncRow.backfillCursorUid || 0) > 0)
+		// 	continue;
 
 		await syncMailbox({
 			client,
@@ -67,9 +66,6 @@ export const deltaFetch = async (
 			path: String((row?.metaData as any)?.imap?.path ?? row.name),
 			window: 500,
 			onMessage: async (msg, path: string) => {
-				// Helpful while stabilizing
-				// console.dir(msg, { depth: 6 });
-
 				const messageId = msg.envelope?.messageId?.trim() || null;
 				const uid = msg.uid;
 				const raw = (await msg.source?.toString()) || "";
@@ -101,7 +97,6 @@ export const deltaFetch = async (
 					});
 				}
 
-				// Check if we already have this message anywhere for this owner
 				const [existing] = await db
 					.select({
 						id: messages.id,
@@ -117,18 +112,45 @@ export const deltaFetch = async (
 					);
 
 				if (existing) {
-					// Cross-mailbox move: update *all* messages in the thread + thread record
 					if (existing.mailboxId !== row.id) {
 						console.log(
 							`[deltaFetch] Move detected for ${messageId}: ${existing.mailboxId} → ${row.id}`,
 						);
 
-						// Update every message in the thread to the new mailbox & IMAP path
 						const all = await db
-							.select()
+							.select({
+								id: messages.id,
+								mailboxId: messages.mailboxId,
+								metaData: messages.metaData,
+								messageId: messages.messageId,
+							})
 							.from(messages)
-							.where(eq(messages.threadId, existing.threadId));
+							.where(
+								and(
+									eq(messages.threadId, existing.threadId),
+									eq(messages.mailboxId, existing.mailboxId),
+								),
+							);
+
 						for (const m of all) {
+							if (m.mailboxId === row.id) continue;
+
+							const [dup] = await db
+								.select({ id: messages.id })
+								.from(messages)
+								.where(
+									and(
+										eq(messages.ownerId, ownerId),
+										eq(messages.messageId, m.messageId),
+										eq(messages.mailboxId, row.id),
+									),
+								);
+
+							if (dup?.id) {
+								await db.delete(messages).where(eq(messages.id, m.id));
+								continue;
+							}
+
 							const updatedMeta = {
 								...(m.metaData as any),
 								imap: {
@@ -136,6 +158,7 @@ export const deltaFetch = async (
 									mailboxPath: path,
 								},
 							};
+
 							await db
 								.update(messages)
 								.set({ mailboxId: row.id, metaData: updatedMeta })
@@ -145,16 +168,6 @@ export const deltaFetch = async (
 								);
 						}
 
-						// Canonical thread mailbox follows the newest message’s mailbox
-						await db
-							.update(threads)
-							.set({ mailboxId: row.id })
-							.where(eq(threads.id, existing.threadId))
-							.catch((e) =>
-								console.error("[deltaFetch] failed thread mailbox update", e),
-							);
-
-						// Rebuild mailboxThreads for this thread
 						await db
 							.delete(mailboxThreads)
 							.where(eq(mailboxThreads.threadId, existing.threadId));
@@ -174,7 +187,6 @@ export const deltaFetch = async (
 							);
 						}
 
-						// Ask Typesense to refresh the whole thread grouping
 						try {
 							const { searchIngestQueue } = await getRedis();
 							await searchIngestQueue.add(
@@ -195,7 +207,6 @@ export const deltaFetch = async (
 						return;
 					}
 
-					// Already present in the same mailbox — nothing to do
 					return;
 				}
 

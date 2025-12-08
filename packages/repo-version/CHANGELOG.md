@@ -1,5 +1,47 @@
 # @kurrier/repo
 
+## 1.0.1
+
+### Patch Changes
+
+- [`a0593d4`](https://github.com/kurrier-org/kurrier/commit/a0593d43e07f4f9e8e947efe49fe9b528ba27e18) Thanks [@krokhale](https://github.com/krokhale)! - Minor build fix for package imports in the worker
+
+## 1.0.0
+
+### Major Changes
+
+- [`282168d`](https://github.com/kurrier-org/kurrier/commit/282168d197a9c8accebd7e906abdca1a6b8e25bb) Thanks [@krokhale](https://github.com/krokhale)! - Calendar v1 (Beta), Support for CalDAV and calendar pane in Kurrier
+
+## 0.0.101
+
+### Patch Changes
+
+- [`d883ece`](https://github.com/kurrier-org/kurrier/commit/d883ece0c4c0c4c36a050a3045ea8fd956fe681b) Thanks [@krokhale](https://github.com/krokhale)! - Minor cleanup and stability fixes for the new BETA ingestion pipeline
+
+## 0.0.100
+
+### Patch Changes
+
+- [`b190b80`](https://github.com/kurrier-org/kurrier/commit/b190b80b7639b63d2a6b30aa8012859755bbfbc5) Thanks [@krokhale](https://github.com/krokhale)! - Disable calendar for BETA
+
+## 0.0.99
+
+### Patch Changes
+
+- [`f189666`](https://github.com/kurrier-org/kurrier/commit/f1896660a73664dfa4ca8c56aacfe49ca3029c6d) Thanks [@krokhale](https://github.com/krokhale)! - refactored the backfill process and added worker pipeline and imap quota limits for the backfill process (BETA)
+
+## 0.0.98
+
+### Patch Changes
+
+- [`b55d4fc`](https://github.com/kurrier-org/kurrier/commit/b55d4fc24abfecd665de7e6404d8fe2f58e63f95) Thanks [@krokhale](https://github.com/krokhale)! - added dockerhub build
+
+## 0.0.97
+
+### Patch Changes
+
+- [`0d95c11`](https://github.com/kurrier-org/kurrier/commit/0d95c1173eb137b35b45e66e1cbafebf8407539f) Thanks [@krokhale](https://github.com/krokhale)! - added support for multiple dav accounts and streamlined the jobs and worker for dav server
+
 ## 0.0.96
 
 ### Patch Changes
