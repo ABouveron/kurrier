@@ -298,7 +298,7 @@ services:
       - ${INSTALL_DIRECTORY}/volumes/db/_supabase.sql:/docker-entrypoint-initdb.d/migrations/97-_supabase.sql:Z
       - ${INSTALL_DIRECTORY}/volumes/db/logs.sql:/docker-entrypoint-initdb.d/migrations/99-logs.sql:Z
       - ${INSTALL_DIRECTORY}/volumes/db/pooler.sql:/docker-entrypoint-initdb.d/migrations/99-pooler.sql:Z
-      - db-config:/etc/postgresql-custom
+      - ${INSTALL_DIRECTORY}/volumes/db-config:/etc/postgresql-custom
     healthcheck:
       test:
         ["CMD","pg_isready","-U","postgres","-h","localhost"]
@@ -357,6 +357,3 @@ services:
       DB_POOL_SIZE: ${POOLER_DB_POOL_SIZE}
     command:
       ["/bin/sh","-c","/app/bin/migrate && /app/bin/supavisor eval \"$$(cat /etc/pooler/pooler.exs)\" && /app/bin/server"]
-
-volumes:
-  db-config:
