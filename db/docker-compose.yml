@@ -271,7 +271,7 @@ services:
 
   meta:
     container_name: supabase-meta
-    image: supabase/postgres-meta:v0.93.1@sha256:3b92a6c4e58ce841c79f65201ae3487af84e774e34ecac989684f775eb78f879
+    image: supabase/postgres-meta:v0.95.1@sha256:91e967af7172a8209c5dcea05a874973f714aa3e8e8480ad0fa6a1ce0400d0cc
     restart: unless-stopped
     depends_on:
       db:
