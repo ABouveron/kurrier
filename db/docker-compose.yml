@@ -95,7 +95,7 @@ services:
       - TYPESENSE_API_KEY=${TYPESENSE_API_KEY}
 
   db-bootstrap:
-    image: postgres:15@sha256:697ff70295146d53b702b07532fe68aaed7a5f10d04ff68edbeffd5fbacd15a5
+    image: postgres:15.15@sha256:697ff70295146d53b702b07532fe68aaed7a5f10d04ff68edbeffd5fbacd15a5
     depends_on:
       - db
       - storage
