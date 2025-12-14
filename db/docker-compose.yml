@@ -31,6 +31,11 @@ services:
       SEARCH_REBUILD_ON_BOOT: ${SEARCH_REBUILD_ON_BOOT}
       WORKER_URL: ${WORKER_URL}
       DAV_URL: http://dav:80
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
   worker:
     image: ghcr.io/kurrier-org/kurrier-worker:v1.0.2@sha256:78a595bdfc9104938cac29e2e8f4a360ee9a31d05a865df2ab6b5712979e0f95
@@ -66,6 +71,11 @@ services:
     volumes:
       - ${INSTALL_DIRECTORY}/dav_config:/dav-config
       - ${INSTALL_DIRECTORY}/dav_data:/dav-data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
   redis:
     image: redis:8.4.0@sha256:3906b477e4b60250660573105110c28bfce93b01243eab37610a484daebceb04
@@ -79,6 +89,11 @@ services:
       - ${INSTALL_DIRECTORY}/redis_data:/data
     ports:
       - ${REDIS_PORT}:${REDIS_PORT}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
   typesense:
     image: typesense/typesense:29.0@sha256:316b7e71c21f7e5e5caa8daa150e1b3f2be8c876081ee1f77bc2d92cd7f137d0
@@ -93,6 +108,11 @@ services:
       --enable-cors
     environment:
       - TYPESENSE_API_KEY=${TYPESENSE_API_KEY}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
   db-bootstrap:
     image: postgres:15.15@sha256:697ff70295146d53b702b07532fe68aaed7a5f10d04ff68edbeffd5fbacd15a5
@@ -112,6 +132,11 @@ services:
       - ${INSTALL_DIRECTORY}/init:/scripts
     entrypoint: [ "/bin/bash", "/scripts/db-bootstrap.sh" ]
     restart: "no"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
   dav:
     image: ckulka/baikal:nginx@sha256:1a901125d121a3e414cda87c617bd322c57ae86b9d2aedbff7b3a7ac84bb23aa
@@ -121,6 +146,11 @@ services:
     volumes:
       - ${INSTALL_DIRECTORY}/dav_config:/var/www/baikal/config
       - ${INSTALL_DIRECTORY}/dav_data:/var/www/baikal/Specific
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
   studio:
     container_name: supabase-studio
@@ -149,6 +179,11 @@ services:
       LOGFLARE_URL: http://analytics:4000
       NEXT_PUBLIC_ENABLE_LOGS: true
       NEXT_ANALYTICS_BACKEND_PROVIDER: postgres
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
 
   kong:
@@ -172,6 +207,11 @@ services:
       DASHBOARD_USERNAME: ${DASHBOARD_USERNAME}
       DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD}
     entrypoint: bash -c 'eval "echo \"$$(cat ~/temp.yml)\"" > ~/kong.yml && /docker-entrypoint.sh kong docker-start'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
   auth:
     container_name: supabase-auth
@@ -215,6 +255,11 @@ services:
       GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE: ${MAILER_URLPATHS_EMAIL_CHANGE}
       GOTRUE_EXTERNAL_PHONE_ENABLED: ${ENABLE_PHONE_SIGNUP}
       GOTRUE_SMS_AUTOCONFIRM: ${ENABLE_PHONE_AUTOCONFIRM}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
   rest:
     container_name: supabase-rest
@@ -235,6 +280,11 @@ services:
       [
         "postgrest"
       ]
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
   storage:
     container_name: supabase-storage
@@ -268,6 +318,11 @@ services:
       GLOBAL_S3_BUCKET: stub
       ENABLE_IMAGE_TRANSFORMATION: "true"
       IMGPROXY_URL: http://imgproxy:5001
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
   meta:
     container_name: supabase-meta
@@ -284,6 +339,11 @@ services:
       PG_META_DB_USER: supabase_admin
       PG_META_DB_PASSWORD: ${POSTGRES_PASSWORD}
       CRYPTO_KEY: ${PG_META_CRYPTO_KEY}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
   db:
     container_name: supabase-db
@@ -318,6 +378,11 @@ services:
       RLS_CLIENT_PASSWORD: ${RLS_CLIENT_PASSWORD}
     command:
       ["postgres","-c","config_file=/etc/postgresql/postgresql.conf","-c","log_min_messages=fatal"]
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
   supavisor:
     container_name: supabase-pooler
@@ -357,6 +422,11 @@ services:
       DB_POOL_SIZE: ${POOLER_DB_POOL_SIZE}
     command:
       ["/bin/sh","-c","/app/bin/migrate && /app/bin/supavisor eval \"$$(cat /etc/pooler/pooler.exs)\" && /app/bin/server"]
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
 
 volumes:
   db-config:
