@@ -288,7 +288,7 @@ services:
 
   storage:
     container_name: supabase-storage
-    image: supabase/storage-api:v1.32.0@sha256:087b7a3b61c1453a5dc6238b8565d04dcaa53c377a5fe50f85af4b0c6984207a
+    image: supabase/storage-api:v1.33.2@sha256:a42f28814fa5ca59dc2f1b2ae403f55086274f4f89a5f02be19082b3648d306d
     restart: unless-stopped
     volumes:
       - ${INSTALL_DIRECTORY}/volumes/storage:/var/lib/storage:z
