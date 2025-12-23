@@ -38,7 +38,7 @@ services:
         max-file: "3"
 
   worker:
-    image: ghcr.io/kurrier-org/kurrier-worker:v1.0.2@sha256:78a595bdfc9104938cac29e2e8f4a360ee9a31d05a865df2ab6b5712979e0f95
+    image: ghcr.io/kurrier-org/kurrier-worker:v1.1.11@sha256:392a1f031ac5d88d3c31140bffd93c214a49144f5a87e08d5c55b4ecc03723fc
     restart: unless-stopped
     ports:
       - "${NITRO_PORT:-3001}:3001"
